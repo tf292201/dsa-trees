@@ -16,21 +16,59 @@ class BinaryTree {
   /** minDepth(): return the minimum depth of the tree -- that is,
    * the length of the shortest path from the root to a leaf. */
 
-  minDepth() {
-
+  minDepth() { 
+    if (!this.root) return 0;
+  
+    const calculateMinDepth = (node) => {
+      if (!node) return 0;
+      if (!node.left && !node.right) return 1;
+      if (!node.left) return 1 + calculateMinDepth(node.right);    
+      if (!node.right) return 1 + calculateMinDepth(node.left);
+      return 1 + Math.min(calculateMinDepth(node.left), calculateMinDepth(node.right));
+    };
+  
+    return calculateMinDepth(this.root);
   }
+  
 
+
+
+  
   /** maxDepth(): return the maximum depth of the tree -- that is,
    * the length of the longest path from the root to a leaf. */
 
   maxDepth() {
-
+    if (!this.root) return 0;
+  
+    const calculateMaxDepth = (node) => {
+      if (!node) return 0;
+      if (!node.left && !node.right) return 1;
+      if (!node.left) return 1 + calculateMaxDepth(node.right);    
+      if (!node.right) return 1 + calculateMaxDepth(node.left);
+      return 1 + Math.max(calculateMaxDepth(node.left), calculateMaxDepth(node.right));
+    };
+  
+    return calculateMaxDepth(this.root);
   }
+  
 
   /** maxSum(): return the maximum sum you can obtain by traveling along a path in the tree.
    * The path doesn't need to start at the root, but you can't visit a node more than once. */
 
   maxSum() {
+    let result = 0;
+
+
+    function calculateMaxSum(node) {
+      if (!node) return 0;
+      const leftSum = calculateMaxSum(node.left);
+      const rightSum = calculateMaxSum(node.right);
+      result = Math.max(result, node.val + leftSum + rightSum);
+      return Math.max(0, leftSum + node.val, rightSum + node.val);
+    }
+
+    calculateMaxSum(this.root);
+    return result;
 
   }
 
@@ -38,6 +76,21 @@ class BinaryTree {
    * which is larger than lowerBound. Return null if no such value exists. */
 
   nextLarger(lowerBound) {
+    let result = null;
+
+    function calculateNextLarger(node) {
+      if (!node) return;
+      if (node.val > lowerBound) {
+        if (result === null || node.val < result) {
+          result = node.val;
+        }
+      }
+      calculateNextLarger(node.left);
+      calculateNextLarger(node.right);
+    }
+
+    calculateNextLarger(this.root);
+    return result;
 
   }
 
@@ -46,6 +99,31 @@ class BinaryTree {
    * (i.e. are at the same level but have different parents. ) */
 
   areCousins(node1, node2) {
+    // Helper function to find the depth and parent of a node
+  const findDepthAndParent = (root, target, depth = 0, parent = null) => {
+    if (!root) return null;
+    if (root === target) return { depth, parent };
+    
+    const leftResult = findDepthAndParent(root.left, target, depth + 1, root);
+    if (leftResult) return leftResult;
+    
+    const rightResult = findDepthAndParent(root.right, target, depth + 1, root);
+    if (rightResult) return rightResult;
+    
+    return null;
+  };
+
+  // Find depth and parent of both nodes
+  const node1Info = findDepthAndParent(this.root, node1);
+  const node2Info = findDepthAndParent(this.root, node2);
+
+  // Check if both nodes exist in the tree and have different parents at the same depth
+  return (
+    node1Info &&
+    node2Info &&
+    node1Info.depth === node2Info.depth &&
+    node1Info.parent !== node2Info.parent
+  );
 
   }
 
