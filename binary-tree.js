@@ -130,24 +130,74 @@ class BinaryTree {
   /** Further study!
    * serialize(tree): serialize the BinaryTree object tree into a string. */
 
-  static serialize() {
-
+  static serialize(tree) {
+    const serializeHelper = (node) => {
+      if (!node) return 'null';
+      return `${node.val},${serializeHelper(node.left)},${serializeHelper(node.right)}`;
+    };
+    return serializeHelper(tree.root);
   }
 
   /** Further study!
    * deserialize(stringTree): deserialize stringTree into a BinaryTree object. */
 
-  static deserialize() {
-
+  static deserialize(stringTree) {
+    // Split the serialized string by commas to get an array of node values
+    const values = stringTree.split(',');
+  
+    // Helper function to recursively build the tree from the array of values
+    const buildTree = () => {
+      // Remove the first value from the array
+      const val = values.shift();
+  
+      // If the value is 'null', return null indicating a null node
+      if (val === 'null') {
+        return null;
+      }
+  
+      // Create a new BinaryTreeNode with the parsed value
+      const node = new BinaryTreeNode(parseInt(val));
+  
+      // Recursively build the left and right subtrees
+      node.left = buildTree();
+      node.right = buildTree();
+  
+      // Return the current node
+      return node;
+    };
+  
+    // Start building the tree from the root node
+    const root = buildTree();
+  
+    // Create a new BinaryTree object with the reconstructed root
+    return new BinaryTree(root);
   }
-
-  /** Further study!
-   * lowestCommonAncestor(node1, node2): find the lowest common ancestor
-   * of two nodes in a binary tree. */
-
+  
   lowestCommonAncestor(node1, node2) {
-    
+    // Helper function to find the lowest common ancestor
+    const findLCA = (node, p, q) => {
+      // If the current node is null or matches either of the target nodes, return the current node
+      if (node === null || node === p || node === q) {
+        return node;
+      }
+  
+      // Recursively search the left and right subtrees
+      const left = findLCA(node.left, p, q);
+      const right = findLCA(node.right, p, q);
+  
+      // If both left and right subtrees return non-null values, then the current node is the LCA
+      if (left !== null && right !== null) {
+        return node;
+      }
+  
+      // Otherwise, return the non-null subtree result
+      return left !== null ? left : right;
+    };
+  
+    // Call the helper function starting from the root node
+    return findLCA(this.root, node1, node2);
   }
+  
 }
 
 module.exports = { BinaryTree, BinaryTreeNode };
